@@ -15,6 +15,16 @@ WHERE c.county = 'Kisumu'
 GROUP BY c.customer_id, c.first_name, c.last_name
 ORDER BY revenue DESC;
 
+/*
+top_node                        : Sort
+join_methods_used               : Hash Join (orders x customers) + Nested Loop (order_items)
+scan_on_orders                  : Index Scan using idx_orders_order_date (Filter: order_status = 'completed')
+scan_on_customers               : Bitmap Heap Scan via Bitmap Index Scan idx_customers_county
+estimated_vs_actual_rows_orders : estimated 2003, actual 2061
+planning_ms                     : 0.377
+execution_ms                    : 0.991
+result_rows                     : 91
+*/
 	--Q21 query --91 rows
 SELECT c.customer_id, c.first_name, c.last_name, SUM(i.line_total) AS revenue
 FROM customers c
@@ -75,7 +85,7 @@ SELECT order_id, order_date, total_amount FROM sokomart.orders WHERE customer_id
 EXPLAIN ANALYZE
 SELECT * FROM sokomart.payments WHERE order_id = 25000;
 
--- Plan 3 AFTER --199 rows
+-- Plan 3 AFTER --358 rows
 EXPLAIN ANALYZE
 SELECT order_id, quantity, line_total FROM sokomart.order_items WHERE product_id = 71;
 
@@ -195,7 +205,7 @@ WITH ranked AS (
                               ORDER BY loaded_at, staging_id) AS copy_no
     FROM sokomart.payment_staging
 )
-DELETE FROM sokomart.payment_staging s
+DELETE FROM payment_staging s
 USING ranked r
 WHERE s.staging_id = r.staging_id
   AND r.copy_no > 1;
