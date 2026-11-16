@@ -1,15 +1,9 @@
 -- SokoMart Kenya - Advanced SQL Practical Project
 -- Database: luxdevhq_cohort9_advanced_sql   Schema: sokomart
 
+SET search_path TO sokomart;
+
 -- ## Practice drills 
-
-SELECT * FROM customers;
-SELECT * FROM orders;
-SELECT * FROM products;
-SELECT * FROM order_items;
-SELECT * FROM payments;
-
-SELECT * FROM payment_staging;
 
 --D1: products above overall average unit price
 

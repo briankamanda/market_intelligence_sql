@@ -2,6 +2,8 @@
 -- SECTION E - Optimisation and transactions (Q21-Q25)
 -- Database: luxdevhq_cohort9_advanced_sql   Schema: sokomart
 
+SET search_path TO sokomart;
+
 -- Q21 - Read a query plan
 	--query plan
 EXPLAIN (ANALYZE, BUFFERS)
@@ -45,7 +47,7 @@ DROP INDEX IF EXISTS sokomart.idx_customers_county, sokomart.idx_customers_regis
     sokomart.idx_payments_status_method, sokomart.idx_payments_payment_date,
     sokomart.idx_price_history_product_id, sokomart.idx_status_history_order_id;
 
-ANALYZE sokomart.customers, sokomart.products, sokomart.orders, sokomart.order_items, sokomart.payments;
+ANALYZE customers, products, orders, order_items, payments;
 
 -- Plan 1 BEFORE   --11 rows
 EXPLAIN ANALYZE
@@ -57,7 +59,7 @@ SELECT * FROM payments WHERE order_id = 25000;
 
 -- Plan 3 BEFORE  --358 rows
 EXPLAIN ANALYZE
-SELECT order_id, quantity, line_total FROM sokomart.order_items WHERE product_id = 71;
+SELECT order_id, quantity, line_total FROM order_items WHERE product_id = 71;
 
 -- (b) - After, recreate the indexes such as in the index creation scripts
 
@@ -75,27 +77,27 @@ CREATE INDEX IF NOT EXISTS idx_payments_payment_date       ON sokomart.payments 
 CREATE INDEX IF NOT EXISTS idx_price_history_product_id    ON sokomart.product_price_history (product_id);
 CREATE INDEX IF NOT EXISTS idx_status_history_order_id     ON sokomart.order_status_history (order_id);
 
-ANALYZE sokomart.customers, sokomart.products, sokomart.orders, sokomart.order_items, sokomart.payments;
+ANALYZE customers, products, orders, order_items, payments;
 
 -- Plan 1 AFTER --11 rows
 EXPLAIN ANALYZE
-SELECT order_id, order_date, total_amount FROM sokomart.orders WHERE customer_id = 408 ORDER BY order_date;
+SELECT order_id, order_date, total_amount FROM orders WHERE customer_id = 408 ORDER BY order_date;
 
 -- Plan 2 AFTER --1 row
 EXPLAIN ANALYZE
-SELECT * FROM sokomart.payments WHERE order_id = 25000;
+SELECT * FROM payments WHERE order_id = 25000;
 
 -- Plan 3 AFTER --358 rows
 EXPLAIN ANALYZE
-SELECT order_id, quantity, line_total FROM sokomart.order_items WHERE product_id = 71;
+SELECT order_id, quantity, line_total FROM order_items WHERE product_id = 71;
 
 --Partial Index
-CREATE INDEX idx_orders_pending_date ON sokomart.orders (order_date) WHERE order_status = 'pending';
-ANALYZE sokomart.orders;
+CREATE INDEX idx_orders_pending_date ON orders (order_date) WHERE order_status = 'pending';
+ANALYZE orders;
 
 EXPLAIN ANALYZE --203 rows
 SELECT order_id, order_date, total_amount
-FROM sokomart.orders
+FROM orders
 WHERE order_status = 'pending' AND order_date < '2026-10-25';
 
 -- Size comparison
@@ -110,34 +112,34 @@ SELECT ROUND(AVG(unit_price), 2) AS avg_beauty_price FROM products WHERE categor
 --23(a) inside transaction
 
 BEGIN;
-UPDATE sokomart.products SET unit_price = ROUND(unit_price * 0.90, 2) WHERE category = 'Beauty';
+UPDATE products SET unit_price = ROUND(unit_price * 0.90, 2) WHERE category = 'Beauty';
 
 SELECT ROUND(AVG(unit_price), 2) AS avg_beauty_price_inside_txn FROM sokomart.products WHERE category = 'Beauty';
 ROLLBACK;
 
 --23(a) after rollback
-SELECT ROUND(AVG(unit_price), 2) AS avg_beauty_price_after_rollback FROM sokomart.products WHERE category = 'Beauty';
+SELECT ROUND(AVG(unit_price), 2) AS avg_beauty_price_after_rollback FROM products WHERE category = 'Beauty';
 
 -- Q23(b) savepoint
 --BEFORE the savepoint
-SELECT product_id, stock_quantity FROM sokomart.products WHERE product_id IN (59, 166) ORDER BY product_id;
+SELECT product_id, stock_quantity FROM products WHERE product_id IN (59, 166) ORDER BY product_id;
 
 BEGIN;
-UPDATE sokomart.products SET stock_quantity = stock_quantity + 40 WHERE product_id = 59;
+UPDATE products SET stock_quantity = stock_quantity + 40 WHERE product_id = 59;
 
-INSERT INTO sokomart.audit_logs (table_name, record_id, action, old_data, new_data)
+INSERT INTO audit_logs (table_name, record_id, action, old_data, new_data)
 SELECT 'products', product_id, 'UPDATE',
        jsonb_build_object('stock_quantity', stock_quantity - 40),
        jsonb_build_object('stock_quantity', stock_quantity)
-FROM sokomart.products WHERE product_id = 59;
+FROM products WHERE product_id = 59;
 
 SAVEPOINT after_restock;
 
-UPDATE sokomart.products SET stock_quantity = 0 WHERE product_id = 166;
+UPDATE products SET stock_quantity = 0 WHERE product_id = 166;
 
 --inside the mistake
 
-SELECT product_id, stock_quantity FROM sokomart.products WHERE product_id IN (59, 166) ORDER BY product_id;
+SELECT product_id, stock_quantity FROM products WHERE product_id IN (59, 166) ORDER BY product_id;
 
 ROLLBACK TO SAVEPOINT after_restock;
 COMMIT;
@@ -148,7 +150,7 @@ SELECT product_id, stock_quantity FROM products WHERE product_id IN (59, 166) OR
 
 --audit row kept
 SELECT table_name, record_id, action, old_data, new_data
-FROM sokomart.audit_logs WHERE table_name = 'products' AND record_id = 59 ORDER BY audit_id DESC LIMIT 1;
+FROM audit_logs WHERE table_name = 'products' AND record_id = 59 ORDER BY audit_id DESC LIMIT 1;
 
 -- Q23(c) audit row kept
 SELECT product_id, stock_quantity FROM products WHERE product_id = 166;

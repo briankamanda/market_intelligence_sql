@@ -4,13 +4,6 @@
 
 SET search_path TO sokomart;
 
-SELECT * FROM customers;
-SELECT * FROM products;
-SELECT * FROM orders;
-SELECT * FROM order_items;
-SELECT * FROM payments;
-SELECT * FROM payment_staging;
-
 -- Q11 - Customer tiers spend summary  (nested derived tables, CASE, scalar subquery) 
 
 SELECT tiered.tier,
@@ -77,13 +70,6 @@ WHERE c.county = 'Mombasa'
                 AND o.order_status <> 'cancelled'
                 AND o.order_date  >= '2026-10-01' AND o.order_date < '2026-11-01');
 
-SELECT * FROM customers;
-SELECT * FROM products;
-SELECT * FROM orders;
-SELECT * FROM order_items;
-SELECT * FROM payments;
-SELECT * FROM payment_staging;
-
 -- Q13 - Payment health by method, 2026   (CTE + FILTER) --4 rows
 
 WITH payments_2026 AS (
@@ -102,7 +88,6 @@ WITH payments_2026 AS (
 		FROM payments_2026
 		GROUP BY payment_method
 		ORDER BY total_payments DESC;
-
 
 -- Q14 - Which categories carry the profit?   (CTE + scalar subqueries) --2 rows
 

@@ -2,6 +2,8 @@
 -- SECTION D - Views, functions, stored procedures, triggers (Q16-Q20)
 -- Database: luxdevhq_cohort9_advanced_sql   Schema: sokomart
 
+SET search_path TO sokomart;
+
 -- Q16 (a) - v_customer_purchase_summary  (VIEW over CTEs + LEFT JOIN) --5000 rows in the view
 
 CREATE OR REPLACE VIEW v_customer_purchase_summary AS
@@ -469,9 +471,6 @@ CALL sp_place_order(408, ARRAY[6, 59], ARRAY[1, 2], 'card', NULL);
 SELECT (SELECT count(*) FROM orders WHERE customer_id = 408) AS orders_of_408,
 		(SELECT stock_quantity FROM products WHERE product_id = 6) AS stock_p6,
 		(SELECT stock_quantity FROM products WHERE product_id = 59) AS stock_p59;
-
- Complete your new order with `sp_update_order_status`, `REFRESH MATERIALIZED VIEW CONCURRENTLY
-   sokomart.mv_monthly_category_sales`, and show the November 2026 rows that now exist.
    
    -- Q20.3 complete the new order, refresh the materialised view (MV), show november 2026
 CALL sp_update_order_status(50001, 'completed');
