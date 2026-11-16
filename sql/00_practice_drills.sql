@@ -100,7 +100,7 @@ WITH shipping_counties AS(
 	SELECT
 		o.shipping_county, COUNT(*) AS completed_orders
 	FROM orders o
-	WHERE order_date BETWEEN '2026-01-01' AND '2026-12-31'
+	WHERE order_date >= '2026-01-01' AND order_date <'2027-01-01'
 		AND order_status = 'completed'
 	GROUP BY o.shipping_county
 	ORDER BY completed_orders DESC

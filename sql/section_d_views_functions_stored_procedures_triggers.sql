@@ -473,7 +473,7 @@ SELECT (SELECT count(*) FROM orders WHERE customer_id = 408) AS orders_of_408,
  Complete your new order with `sp_update_order_status`, `REFRESH MATERIALIZED VIEW CONCURRENTLY
    sokomart.mv_monthly_category_sales`, and show the November 2026 rows that now exist.
    
-   -- Q20.3 complete the new order, refresh the materialized view (MV), show november 2026
+   -- Q20.3 complete the new order, refresh the materialised view (MV), show november 2026
 CALL sp_update_order_status(50001, 'completed');
 
 	--Q20.3 refresh

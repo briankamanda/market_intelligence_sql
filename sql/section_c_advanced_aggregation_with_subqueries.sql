@@ -104,7 +104,7 @@ WITH payments_2026 AS (
 		ORDER BY total_payments DESC;
 
 
--- Q14 - Which departments carry the profit?   (CTE + scalar subqueries) --2 rows
+-- Q14 - Which categories carry the profit?   (CTE + scalar subqueries) --2 rows
 
 WITH category_2025 AS (
     SELECT p.category,

@@ -77,7 +77,7 @@ CREATE INDEX IF NOT EXISTS idx_status_history_order_id     ON sokomart.order_sta
 
 ANALYZE sokomart.customers, sokomart.products, sokomart.orders, sokomart.order_items, sokomart.payments;
 
--- Plan 1 AFTER --9 rows
+-- Plan 1 AFTER --11 rows
 EXPLAIN ANALYZE
 SELECT order_id, order_date, total_amount FROM sokomart.orders WHERE customer_id = 408 ORDER BY order_date;
 
